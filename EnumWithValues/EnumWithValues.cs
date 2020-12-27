@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -72,34 +73,60 @@ namespace EnumWithValues {
                 var attrs = symbol.GetAttributes();
                 var (name, defaultNumberConvert) = attrs
                     .Where(attr => attr.AttributeClass!.Equals(enumWithValuesAttributeSymbol, SymbolEqualityComparer.Default))
-                    .Select(attr => ((string)attr.ConstructorArguments[0].Value!, (bool?)attr.ConstructorArguments[1].Value))
+                    .Select(attr => ((string)attr.ConstructorArguments[0].Value!, (bool)attr.ConstructorArguments[1].Value!))
                     .FirstOrDefault();
-                if (name is not null) {
-                    string? namespaceName = null;
-                    if (symbol.ContainingNamespace is INamespaceSymbol nss)
-                        namespaceName = nss.Name;
-                    enums.Add(new() { Name = symbol.Name, Namespace = namespaceName, StructName = name, DefaultNumberConvert = defaultNumberConvert ?? false });
-                }
-            }
-            foreach (var syntax in receiver.FieldDeclarationSyntaxes) {
-                if (syntax.Parent is not EnumDeclarationSyntax parent)
+                if (name is null)
                     continue;
-                var model = compilation.GetSemanticModel(syntax.SyntaxTree);
-                var symbol = ModelExtensions.GetDeclaredSymbol(model, syntax)!;
-                var attrs = symbol.GetAttributes();
+                var enumDeclaration = new EnumDeclaration() { Accessibility = symbol.DeclaredAccessibility, EnumName = symbol.Name, EnumFullname = symbol.ToString(), StructName = name, DefaultNumberConvert = defaultNumberConvert };
+                foreach (var memberSyntax in syntax.Members) {
+                    var memberModel = compilation.GetSemanticModel(memberSyntax.SyntaxTree);
+                    var memberSymbol = ModelExtensions.GetDeclaredSymbol(memberModel, memberSyntax)!;
+                    var memberAttrs = memberSymbol.GetAttributes();
+                    var valueConstants = memberAttrs
+                        .Where(attr => attr.AttributeClass!.Equals(enumValueAttributeSymbol, SymbolEqualityComparer.Default))
+                        .Select(attr => attr.ConstructorArguments[0].Values!)
+                        .FirstOrDefault();
+                    enumDeclaration.Members.Add(new() { Name = memberSymbol.Name, Values = valueConstants });
+                }
+                enums.Add(enumDeclaration);
+            }
+            foreach (var e in enums) {
+                e.DetectTypes();
+                var code = StructCode(e.Accessibility, e.StructName, e.EnumName, e.Types ?? new(), e.Members);
+                if (e.Namespace is string ns)
+                    code = Namespaced(ns, code);
+                context.AddSource($"{e.StructFullname}.cs", SourceText.From(code, Encoding.UTF8));
             }
         }
 
         class EnumDeclaration {
-            public string? Namespace { get; set; }
-            public string Name { get; set; } = "";
+            public Accessibility Accessibility { get; set; }
+            public string EnumFullname { get; set; } = "";
+            public string EnumName { get; set; } = "";
+            public string? Namespace { get => EnumFullname == EnumName ? null : EnumFullname.Substring(0, EnumFullname.Length - EnumName.Length - 1); }
             public string StructName { get; set; } = "";
+            public string StructFullname { get => $"{Namespace}_{StructName}"; }
             public bool DefaultNumberConvert { get; set; }
+            public List<EnumMember> Members { get; set; } = new();
+            public List<ITypeSymbol>? Types { get; set; }
+            public void DetectTypes() {
+                if (Members.Count == 0) {
+                    Types = new();
+                    return;
+                }
+                var types = Members[0].Values.Select(value => value.Type!).ToList();
+                foreach (var member in Members) {
+                    if (!member.Values.Select(value => value.Type!).SequenceEqual(types, SymbolEqualityComparer.Default)) {
+                        return;
+                    }
+                }
+                Types = types;
+            }
         }
 
-        class EnumField {
+        class EnumMember {
             public string Name { get; set; } = "";
-            public object?[] Values { get; set; } = new object?[0];
+            public ImmutableArray<TypedConstant> Values { get; set; } = new();
         }
 
         const string I = "    ";
@@ -114,10 +141,15 @@ namespace {namespaceName} {{
 ";
         }
 
-        string StructCode(string structName, string enumName, IList<Type> valueTypes, IEnumerable<EnumField> fields) {
+        string AccessibilityToString(Accessibility accessibility) =>
+            string.Join(" ", accessibility.ToString().Split(new string[] { "And" }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.ToLower()));
+
+        string StructCode(Accessibility accessibility, string structName, string enumName, IList<ITypeSymbol> valueTypes, IEnumerable<EnumMember> members) {
             return $@"
-    public struct {structName} : IEquatable<{structName}> {{
-{FieldCode(structName, enumName, fields)}
+    using System;
+
+    {AccessibilityToString(accessibility)} struct {structName} : IEquatable<{structName}> {{
+{FieldCode(structName, enumName, members)}
 
         public {enumName} Enum {{ get; }}
 
@@ -125,43 +157,43 @@ namespace {namespaceName} {{
 
         public bool Equals({structName} other) => Enum == other.Enum;
 
-{ValueOperatorCode(structName, enumName, valueTypes, fields)}
+{ValueOperatorCode(structName, enumName, valueTypes, members)}
     }}
 ";
         }
 
-        string FieldCode(string structName, string enumName, IEnumerable<EnumField> fields) {
+        string FieldCode(string structName, string enumName, IEnumerable<EnumMember> members) {
             var code = new StringBuilder();
-            foreach (var field in fields)
-                code.Append($"{I}{I}public static readonly {structName} {field.Name} = new({enumName}.{field.Name});").AppendLine();
+            foreach (var member in members)
+                code.Append($"{I}{I}public static readonly {structName} {member.Name} = new({enumName}.{member.Name});").AppendLine();
             return code.ToString();
         }
 
-        string ValueOperatorCode(string structName, string enumName, IList<Type> valueTypes, IEnumerable<EnumField> fields) {
+        string ValueOperatorCode(string structName, string enumName, IList<ITypeSymbol> valueTypes, IEnumerable<EnumMember> members) {
             var code = new StringBuilder();
             for (var i = 0; i < valueTypes.Count; ++i) {
-                ToValueOperatorCode(code, structName, enumName, valueTypes, fields, i);
-                FromValueOperatorCode(code, structName, enumName, valueTypes, fields, i);
+                ToValueOperatorCode(code, structName, enumName, valueTypes, members, i);
+                FromValueOperatorCode(code, structName, enumName, valueTypes, members, i);
             }
             return code.ToString();
         }
 
-        StringBuilder ToValueOperatorCode(StringBuilder code, string structName, string enumName, IList<Type> valueTypes, IEnumerable<EnumField> fields, int valueIndex) {
-            code.Append($"{I}{I}public static implicit operator {valueTypes[valueIndex].FullName}({structName} enumStruct) {{").AppendLine();
+        StringBuilder ToValueOperatorCode(StringBuilder code, string structName, string enumName, IList<ITypeSymbol> valueTypes, IEnumerable<EnumMember> members, int valueIndex) {
+            code.Append($"{I}{I}public static implicit operator {valueTypes[valueIndex]}({structName} enumStruct) {{").AppendLine();
             code.Append($"{I}{I}{I}switch (enumStruct.Enum) {{").AppendLine();
-            foreach (var field in fields)
-                code.Append($"{I}{I}{I}{I}case {enumName}.{field.Name}: return {field.Values[valueIndex]};").AppendLine();
+            foreach (var member in members)
+                code.Append($"{I}{I}{I}{I}case {enumName}.{member.Name}: return {member.Values[valueIndex].ToCSharpString()};").AppendLine();
             code.Append($"{I}{I}{I}{I}default: throw new InvalidCastException();").AppendLine();
             code.Append($"{I}{I}{I}}}").AppendLine();
             code.Append($"{I}{I}}}").AppendLine();
             return code;
         }
 
-        StringBuilder FromValueOperatorCode(StringBuilder code, string structName, string enumName, IList<Type> valueTypes, IEnumerable<EnumField> fields, int valueIndex) {
-            code.Append($"{I}{I}public static implicit operator {structName}({valueTypes[valueIndex].FullName} value) {{").AppendLine();
+        StringBuilder FromValueOperatorCode(StringBuilder code, string structName, string enumName, IList<ITypeSymbol> valueTypes, IEnumerable<EnumMember> members, int valueIndex) {
+            code.Append($"{I}{I}public static implicit operator {structName}({valueTypes[valueIndex]} value) {{").AppendLine();
             code.Append($"{I}{I}{I}switch (value) {{").AppendLine();
-            foreach (var field in fields)
-                code.Append($"{I}{I}{I}{I}case {field.Values[valueIndex]}: return {enumName}.{field.Name};").AppendLine();
+            foreach (var member in members)
+                code.Append($"{I}{I}{I}{I}case {member.Values[valueIndex].ToCSharpString()}: return {member.Name};").AppendLine();
             code.Append($"{I}{I}{I}{I}default: throw new InvalidCastException();").AppendLine();
             code.Append($"{I}{I}{I}}}").AppendLine();
             code.Append($"{I}{I}}}").AppendLine();
@@ -171,15 +203,11 @@ namespace {namespaceName} {{
 
     internal class SyntaxReceiver : ISyntaxReceiver {
         internal List<EnumDeclarationSyntax> EnumDeclarationSyntaxes { get; } = new();
-        internal List<FieldDeclarationSyntax> FieldDeclarationSyntaxes { get; } = new();
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode) {
             switch (syntaxNode) {
                 case EnumDeclarationSyntax syntax when syntax.AttributeLists.Count > 0:
                     EnumDeclarationSyntaxes.Add(syntax);
-                    break;
-                case FieldDeclarationSyntax syntax when syntax.AttributeLists.Count > 0:
-                    FieldDeclarationSyntaxes.Add(syntax);
                     break;
             }
         }
