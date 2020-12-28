@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ShioriSharp.Message {
     public class Response {
-        public static Response OK(Headers? headers = null, Version version = Version.V3_0) => new Response { Headers = headers ?? new(), Version = version };
-        public static Response NoContent(Headers? headers = null, Version version = Version.V3_0) => new Response { StatusCode = StatusCode.No_Content, Headers = headers ?? new(), Version = version };
+        public static Response OK(Headers? headers = null, double version = 3.0) => new Response { Headers = headers ?? new(), Version = version };
+        public static Response NoContent(Headers? headers = null, double version = 3.0) => new Response { StatusCode = StatusCode.No_Content, Headers = headers ?? new(), Version = version };
 
 #if NET5_0
         public StatusLine StatusLine { get; init; } = new();

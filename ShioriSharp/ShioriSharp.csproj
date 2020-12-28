@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EnumWithValues" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HeadersShortcutGenerator\HeadersShortcutGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

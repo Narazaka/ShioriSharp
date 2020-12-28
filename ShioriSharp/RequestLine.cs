@@ -7,80 +7,70 @@ namespace ShioriSharp {
         public Protocol Protocol { get; set; } = Protocol.SHIORI;
         public Version Version { get; set; } = Version.V3_0;
 
-        public RequestLine() { }
-
-        public RequestLine(Method method = Method.GET, Protocol protocol = Protocol.SHIORI, Version version = Version.V3_0, bool validate = false) {
-            Method = method;
-            Protocol = protocol;
-            Version = version;
-            if (validate)
-                Validate();
-        }
-
-        public override string ToString() => $"{Method.ToMethodString()} {Protocol.ToProtocolString()}/{Version.ToVersionString()}";
+        public override string ToString() => $"{Method} {Protocol}/{Version}";
 
         public bool Valid {
             get {
                 if (Protocol != Protocol.SHIORI)
                     return false;
-                switch (Version) {
-                    case Version.V2_0:
-                        switch (Method) {
-                            case Method.GET_Version:
-                            case Method.NOTIFY_OwnerGhostName:
-                            case Method.GET_Sentence:
-                            case Method.GET_Word:
-                            case Method.GET_Status:
+                switch (Version.AsEnum) {
+                    case Version.Enum.V2_0:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.GET_Version:
+                            case Method.Enum.NOTIFY_OwnerGhostName:
+                            case Method.Enum.GET_Sentence:
+                            case Method.Enum.GET_Word:
+                            case Method.Enum.GET_Status:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V2_2:
-                        switch (Method) {
-                            case Method.GET_Sentence:
+                    case Version.Enum.V2_2:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.GET_Sentence:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V2_3:
-                        switch (Method) {
-                            case Method.NOTIFY_OtherGhostName:
-                            case Method.GET_Sentence:
+                    case Version.Enum.V2_3:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.NOTIFY_OtherGhostName:
+                            case Method.Enum.GET_Sentence:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V2_4:
-                        switch (Method) {
-                            case Method.TEACH:
+                    case Version.Enum.V2_4:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.TEACH:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V2_5:
-                        switch (Method) {
-                            case Method.GET_String:
+                    case Version.Enum.V2_5:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.GET_String:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V2_6:
-                        switch (Method) {
-                            case Method.GET_Version:
-                            case Method.GET_Sentence:
-                            case Method.GET_Status:
-                            case Method.GET_String:
-                            case Method.NOTIFY_OwnerGhostName:
-                            case Method.NOTIFY_OtherGhostName:
-                            case Method.TRANSLATE_Sentence:
+                    case Version.Enum.V2_6:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.GET_Version:
+                            case Method.Enum.GET_Sentence:
+                            case Method.Enum.GET_Status:
+                            case Method.Enum.GET_String:
+                            case Method.Enum.NOTIFY_OwnerGhostName:
+                            case Method.Enum.NOTIFY_OtherGhostName:
+                            case Method.Enum.TRANSLATE_Sentence:
                                 return true;
                             default:
                                 return false;
                         }
-                    case Version.V3_0:
-                        switch (Method) {
-                            case Method.GET:
-                            case Method.NOTIFY:
+                    case Version.Enum.V3_0:
+                        switch (Method.AsEnum) {
+                            case Method.Enum.GET:
+                            case Method.Enum.NOTIFY:
                                 return true;
                             default:
                                 return false;
@@ -91,9 +81,10 @@ namespace ShioriSharp {
             }
         }
 
-        public void Validate() {
+        public RequestLine Validate() {
             if (!Valid)
                 throw new InvalidOperationException($"[{Method}][{Protocol}][{Version}] is invalid request line");
+            return this;
         }
     }
 }

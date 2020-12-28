@@ -7,40 +7,31 @@ namespace ShioriSharp {
         public Protocol Protocol { get; set; } = Protocol.SHIORI;
         public Version Version { get; set; } = Version.V3_0;
 
-        public StatusLine() { }
-
-        public StatusLine(StatusCode statusCode = StatusCode.OK, Protocol protocol = Protocol.SHIORI, Version version = Version.V3_0, bool validate = false) {
-            StatusCode = statusCode;
-            Protocol = protocol;
-            Version = version;
-            if (validate)
-                Validate();
-        }
-
-        public override string ToString() => $"{Protocol.ToProtocolString()}/{Version.ToVersionString()} {(int)StatusCode} {StatusCode.ToStatusCodeString()}";
+        public override string ToString() => $"{Protocol}/{Version} {(int)StatusCode} {StatusCode}";
 
         public bool Valid {
             get {
                 if (Protocol != Protocol.SHIORI)
                     return false;
 #if NET5_0
-                if (!Enum.IsDefined(StatusCode))
+                if (!Enum.IsDefined(StatusCode.AsEnum))
                     return false;
-                if (!Enum.IsDefined(Version))
+                if (!Enum.IsDefined(Version.AsEnum))
                     return false;
 #else
                 if (!Enum.IsDefined(typeof(StatusCode), StatusCode))
                     return false;
-                if (!Enum.IsDefined(typeof(Version), Version))
+                if (!Enum.IsDefined(typeof(Version), Version.AsEnum))
                     return false;
 #endif
                 return true;
             }
         }
 
-        public void Validate() {
+        public StatusLine Validate() {
             if (!Valid)
                 throw new InvalidOperationException($"[{Protocol}][{Version}][{StatusCode}] is invalid status line");
+            return this;
         }
     }
 }
