@@ -1,6 +1,5 @@
 using System;
 using Xunit;
-using ShioriSharp;
 using ShioriSharp.Message;
 
 namespace ShioriSharpTest.Message {

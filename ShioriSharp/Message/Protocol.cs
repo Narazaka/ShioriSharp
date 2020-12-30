@@ -1,5 +1,4 @@
-﻿using System;
-using EnumWithValues;
+﻿using EnumWithValues;
 
 namespace ShioriSharp.Message {
     /** <summary>SHIORI protocol</summary> */

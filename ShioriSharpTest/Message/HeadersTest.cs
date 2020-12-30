@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using ShioriSharp;
 using ShioriSharp.Message;
 
 namespace ShioriSharpTest.Message {
@@ -30,7 +28,7 @@ namespace ShioriSharpTest.Message {
         [InlineData("Foo: Bar", "Foo: Bar", "Baz")]
         [InlineData("Baz", "Foo", "Bar", "Baz", "Hoge\n")]
         public void Invalid(string errorKey, params string[] values) {
-            var instance = ValuesToHeaders(values);
+            var instance = TestCommon.ValuesToHeaders(values);
             Assert.False(instance.Valid);
             Assert.Equal(instance.InvalidPair!.Value.Key, errorKey);
             Assert.Throws<InvalidOperationException>(() => instance.Validate());
@@ -39,7 +37,7 @@ namespace ShioriSharpTest.Message {
         [Theory]
         [InlineData("Charset: UTF-8\x0d\x0aReference0: Foo\x01/Bar\x0d\x0a", "Charset", "UTF-8", "Reference0", "Foo\x01/Bar")]
         public void ToStringTest(string result, params string[] values) {
-            var instance = ValuesToHeaders(values);
+            var instance = TestCommon.ValuesToHeaders(values);
             Assert.Equal(instance.ToString(), result);
             Assert.Equal($"{instance}", result);
         }
@@ -74,7 +72,7 @@ namespace ShioriSharpTest.Message {
         [InlineData(3, "Reference2", "foo")]
         [InlineData(102, "Reference101", "foo")]
         public void References(int count, params string[] values) {
-            var instance = ValuesToHeaders(values);
+            var instance = TestCommon.ValuesToHeaders(values);
             var references = instance.References();
             Assert.Equal(count, references.Length);
             Assert.Equal(values.Last(), references[references.Length - 1]);
@@ -98,13 +96,6 @@ namespace ShioriSharpTest.Message {
             Assert.Equal("Foo", headers["Reference1"]);
             Assert.Equal("Bar", headers["Reference10"]);
         }
-
-        Headers ValuesToHeaders(string[] values) => new Headers(
-            values
-            .Select((value, index) => (value, index))
-            .GroupBy(tuple => tuple.index / 2, tuple => tuple.value)
-            .ToDictionary(group => group.First(), group => group.Last())
-            );
     }
 }
 

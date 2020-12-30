@@ -1,6 +1,6 @@
 using Xunit;
-using ShioriSharp;
 using ShioriSharp.Message;
+using ShioriSharp.Parser;
 
 namespace ShioriSharpTest.Message {
     public class ProtocolTest {
