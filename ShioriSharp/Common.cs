@@ -7,5 +7,6 @@ using System.Threading.Tasks;
 namespace ShioriSharp {
     public static class Common {
         public const string LineSeparator = "\x0d\x0a";
+        public const string LF = "\x0a";
     }
 }

@@ -3,6 +3,7 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
 
 namespace ShioriSharp {
     /** <summary>SHIORI Message Headers Container</summary> */
@@ -34,6 +35,14 @@ namespace ShioriSharp {
         public IEnumerable<string>? GhostEx { get; set; }
 #endif
 
+        public Headers() { }
+        public Headers(IDictionary<string, string> dictionary) : base(dictionary) { }
+#if NETSTANDARD2_1 || NET5_0
+        public Headers(IEnumerable<KeyValuePair<string, string>> collection) : base(collection) { }
+#endif
+        public Headers(int capacity) : base(capacity) { }
+        public Headers(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
         public override string ToString() {
             var str = new StringBuilder();
             foreach (var pair in this)
@@ -43,12 +52,13 @@ namespace ShioriSharp {
 
         public string? Get(string name) => TryGetValue(name, out var value) ? value : null;
 
-        public void Set(string name, string? value) {
+        public Headers Set(string name, string? value) {
             if (value is null) {
                 Remove(name);
             } else {
                 this[name] = value;
             }
+            return this;
         }
 
         public string? Reference(int index) => Get($"Reference{index}");
@@ -61,7 +71,7 @@ namespace ShioriSharp {
             foreach (var pair in this) {
                 var match = ReferenceRe.Match(pair.Key);
                 if (match is not null && match.Success) {
-                    var index = int.Parse(match.Captures[0].Value);
+                    var index = int.Parse(match.Groups[1].Captures[0].Value);
                     indexes[index] = pair.Key;
                     if (maxIndex < index)
                         maxIndex = index;
@@ -75,17 +85,21 @@ namespace ShioriSharp {
         }
 
         public KeyValuePair<string, string>? InvalidPair {
-            get => this.FirstOrDefault(pair => pair.Key.Contains("\n") || pair.Value.Contains("\n"));
+            get => this
+                .Cast<KeyValuePair<string, string>?>()
+                .FirstOrDefault(maybePair =>
+                    maybePair is not KeyValuePair<string, string> pair || pair.Key.Contains(Common.LF) || pair.Key.Contains(": ") || pair.Value.Contains(Common.LF)
+                );
         }
 
         public bool Valid {
-            get => InvalidPair is null;
+            get => InvalidPair is not KeyValuePair<string, string>;
         }
 
         public Headers Validate() {
             var invalidPair = InvalidPair;
-            if (invalidPair is not null) {
-                throw new InvalidOperationException($"header has \\n value [{((KeyValuePair<string, string>)invalidPair).Key}: {invalidPair.Value}]");
+            if (invalidPair is KeyValuePair<string, string> invalidPairKV) {
+                throw new InvalidOperationException($"header has \\n value [{invalidPairKV.Key}: {invalidPairKV.Value}]");
             }
             return this;
         }
