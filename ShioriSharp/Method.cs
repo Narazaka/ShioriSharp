@@ -29,5 +29,10 @@ namespace ShioriSharp {
         [EnumValue("EXECUTE")]
         EXECUTE,
     }
+
+    public partial struct Method : IValidatable<Method> {
+        public bool Valid { get => AsEnum != 0; }
+        public Method Validate() => Valid ? this : throw new System.InvalidOperationException();
+    }
 }
 

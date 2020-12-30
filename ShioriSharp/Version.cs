@@ -21,5 +21,10 @@ namespace ShioriSharp {
         [EnumValue("3.0", 3.0)]
         V3_0 = 30,
     }
+
+    public partial struct Version : IValidatable<Version> {
+        public bool Valid { get => AsEnum != 0; }
+        public Version Validate() => Valid ? this : throw new System.InvalidOperationException();
+    }
 }
 

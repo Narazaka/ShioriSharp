@@ -19,5 +19,10 @@ namespace ShioriSharp {
         [EnumValue("Internal Server Error")]
         Internal_Server_Error = 500,
     }
+
+    public partial struct StatusCode : IValidatable<StatusCode> {
+        public bool Valid { get => AsEnum != 0; }
+        public StatusCode Validate() => Valid ? this : throw new System.InvalidOperationException();
+    }
 }
 

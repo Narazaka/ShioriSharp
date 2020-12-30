@@ -10,5 +10,10 @@ namespace ShioriSharp {
         [EnumValue("SAORI")]
         SAORI,
     }
+
+    public partial struct Protocol : IValidatable<Protocol> {
+        public bool Valid { get => AsEnum != 0; }
+        public Protocol Validate() => Valid ? this : throw new System.InvalidOperationException();
+    }
 }
 
