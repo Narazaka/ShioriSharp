@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EnumWithValues" Version="[1.0.8,2)" />
+    <PackageReference Include="EnumWithValues" Version="[1.0.8,2)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
