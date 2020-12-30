@@ -11,20 +11,16 @@ namespace ShioriSharp {
 
         public bool Valid {
             get {
-                if (Protocol != Protocol.SHIORI)
+                if (!StatusCode.Valid || !Protocol.Valid || !Version.Valid)
                     return false;
-#if NET5_0
-                if (!Enum.IsDefined(StatusCode.AsEnum))
-                    return false;
-                if (!Enum.IsDefined(Version.AsEnum))
-                    return false;
-#else
-                if (!Enum.IsDefined(typeof(StatusCode), StatusCode))
-                    return false;
-                if (!Enum.IsDefined(typeof(Version), Version.AsEnum))
-                    return false;
-#endif
-                return true;
+                switch (Protocol.AsEnum) {
+                    case Protocol.Enum.SHIORI:
+                        return Version >= 2.0 && Version <= 3.0;
+                    case Protocol.Enum.SAORI:
+                        return Version.AsEnum == VersionEnum.V1_0;
+                    default:
+                        return false;
+                }
             }
         }
 
