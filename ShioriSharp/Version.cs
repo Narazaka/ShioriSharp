@@ -4,6 +4,8 @@ namespace ShioriSharp {
     /** <summary>SHIORI version</summary> */
     [EnumWithValues("Version", convertEnumValue: false)]
     public enum VersionEnum {
+        [EnumValue("1.0", 1.0)]
+        V1_0 = 10,
         [EnumValue("2.0", 2.0)]
         V2_0 = 20,
         [EnumValue("2.2", 2.2)]

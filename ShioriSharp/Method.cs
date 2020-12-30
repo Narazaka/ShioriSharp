@@ -26,6 +26,8 @@ namespace ShioriSharp {
         NOTIFY_OtherGhostName,
         [EnumValue("TRANSLATE Sentence")]
         TRANSLATE_Sentence,
+        [EnumValue("EXECUTE")]
+        EXECUTE,
     }
 }
 

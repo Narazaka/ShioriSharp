@@ -7,6 +7,8 @@ namespace ShioriSharp {
     public enum ProtocolEnum : byte {
         [EnumValue("SHIORI")]
         SHIORI = 1,
+        [EnumValue("SAORI")]
+        SAORI,
     }
 }
 
