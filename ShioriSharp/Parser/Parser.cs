@@ -29,7 +29,7 @@ namespace ShioriSharp.Parser {
             Version version = line.Substring(protocolSeparatorIndex + 1);
             if (version.AsEnum == 0)
                 throw new FormatException();
-            Method method = line.Substring(0, protocolSeparatorIndex - 7);
+            Method method = line.Substring(0, protocolSeparatorIndex - (protocol.AsEnum == ProtocolEnum.SHIORI ? 7 : 6));
             if (method.AsEnum == 0)
                 throw new FormatException();
             return new() { Method = method, Protocol = protocol, Version = version };
@@ -66,6 +66,7 @@ namespace ShioriSharp.Parser {
                 }
                 if (lineBreakIndex == 0) {
                     previousLineWasEmpty = true;
+                    continue;
                 } else if (lineBreakIndex == -1) {
                     throw new FormatException();
                 }
