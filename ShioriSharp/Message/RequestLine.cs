@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI Request Message's RequestLine Container</summary> */
     public class RequestLine : IValidatable<RequestLine> {
         public Method Method { get; set; } = Method.GET;

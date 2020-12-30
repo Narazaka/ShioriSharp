@@ -5,7 +5,7 @@ using Xunit;
 using ShioriSharp;
 using ShioriSharp.Message;
 
-namespace ShioriSharpTest.Container {
+namespace ShioriSharpTest.Message {
     public class HeadersTest {
         [Theory]
         [InlineData("Charset", "Shift_JIS")]

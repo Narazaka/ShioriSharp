@@ -3,7 +3,7 @@ using Xunit;
 using ShioriSharp;
 using ShioriSharp.Message;
 
-namespace ShioriSharpTest.Container {
+namespace ShioriSharpTest.Message {
     public class StatusLineTest {
         [Theory]
         [InlineData(200, "SHIORI", "2.0")]

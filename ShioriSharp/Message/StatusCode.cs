@@ -1,6 +1,6 @@
 ﻿using EnumWithValues;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI status code</summary> */
     [EnumWithValues("StatusCode")]
     public enum StatusCodeEnum {

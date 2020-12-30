@@ -1,7 +1,7 @@
 ﻿using System;
 using EnumWithValues;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI protocol</summary> */
     [EnumWithValues("Protocol", convertEnumValue: false)]
     public enum ProtocolEnum : byte {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI Message Headers Container</summary> */
     [SourceGenerator.ReferenceHeadersShortcut(100)] // Reference* header (SHIORI/2.2-2.6,3.x)
     [SourceGenerator.HeaderShortcut("Charset", @"request/response header")]

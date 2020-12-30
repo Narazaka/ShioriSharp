@@ -1,6 +1,6 @@
 ﻿using EnumWithValues;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI version</summary> */
     [EnumWithValues("Version", convertEnumValue: false)]
     public enum VersionEnum {

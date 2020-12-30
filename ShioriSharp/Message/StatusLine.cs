@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI Response Message's StatusLine Container</summary> */
     public class StatusLine : IValidatable<StatusLine> {
         public StatusCode StatusCode { get; set; } = StatusCode.OK;

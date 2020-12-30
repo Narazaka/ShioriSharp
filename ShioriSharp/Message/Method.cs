@@ -1,6 +1,6 @@
 ﻿using EnumWithValues;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Message {
     /** <summary>SHIORI/2.x/3.x method</summary> */
     [EnumWithValues("Method", convertEnumValue: false)]
     public enum MethodEnum : byte {

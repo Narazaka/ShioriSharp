@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ShioriSharp {
+namespace ShioriSharp.Extensions {
     public static class HeaderValueStringExtensions {
         public static string[] SeparateValues(this string str, string separator = "\x01") =>
 #if NETSTANDARD2_1 || NET5_0

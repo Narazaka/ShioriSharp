@@ -1,13 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Collections.Concurrent;
 
 namespace ShioriSharp.Parser {
+    using Message;
+
     public static class Parser {
-        public static Message.Request ParseRequest(string message) {
+        public static Request ParseRequest(string message) {
             var lineBreakIndex = message.IndexOf(Common.LineSeparator);
             return new() {
                 RequestLine = ParseRequestLine(message.Substring(0, lineBreakIndex)),
@@ -15,7 +12,7 @@ namespace ShioriSharp.Parser {
             };
         }
 
-        public static Message.Response ParseResponse(string message) {
+        public static Response ParseResponse(string message) {
             var lineBreakIndex = message.IndexOf(Common.LineSeparator);
             return new() {
                 StatusLine = ParseStatusLine(message.Substring(0, lineBreakIndex)),
