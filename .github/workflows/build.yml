@@ -11,19 +11,33 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        dotnet: ["5.0", "3.1", "2.1"]
-
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET
+    - name: Setup .NET 5
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: "5.0"
+    - name: Setup .NET Core 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "3.1.404"
+    - name: Setup .NET Core 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "2.1.811"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
+    - name: Test on .NET 5
       run: dotnet test --no-build --verbosity normal
+    - name: change to .NET Core 3.1
+      run: dotnet new globaljson --sdk-version 3.1.404 --force
+    - name: Test on .NET Core 3.1
+      run: dotnet test --no-build --verbosity normal
+    - name: change to .NET Core 2.1
+      run: dotnet new globaljson --sdk-version 2.1.811 --force
+    - name: Test on .NET Core 2.1
+      run: dotnet test --no-build --verbosity normal
+    - name: Remove global.json
+      run: rm ./global.json
