@@ -2,7 +2,7 @@
 
 namespace ShioriSharp {
     /** <summary>SHIORI Request Message's RequestLine Container</summary> */
-    public class RequestLine {
+    public class RequestLine : IValidatable<RequestLine> {
         public Method Method { get; set; } = Method.GET;
         public Protocol Protocol { get; set; } = Protocol.SHIORI;
         public Version Version { get; set; } = Version.V3_0;

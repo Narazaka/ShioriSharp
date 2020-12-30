@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShioriSharp.Message {
-    public class Response {
+    public class Response : IValidatable<Response> {
         public static Response OK(Headers? headers = null, double version = 3.0) => new Response { Headers = headers ?? new(), Version = version };
         public static Response NoContent(Headers? headers = null, double version = 3.0) => new Response { StatusCode = StatusCode.No_Content, Headers = headers ?? new(), Version = version };
 
@@ -23,6 +23,14 @@ namespace ShioriSharp.Message {
 
 
         public override string ToString() => $"{StatusLine}{Common.LineSeparator}{Headers}{Common.LineSeparator}";
+
+        public bool Valid { get => StatusLine.Valid && Headers.Valid; }
+
+        public Response Validate() {
+            if (!Valid)
+                throw new InvalidOperationException($"invalid response");
+            return this;
+        }
     }
 
 }

@@ -23,7 +23,7 @@ namespace ShioriSharp {
     [SourceGenerator.HeaderShortcut("String", @"response header (GET String SHIORI/2.5)")]
     [SourceGenerator.HeaderShortcut("Value", @"response header (GET SHIORI/3.0)")]
     [SourceGenerator.HeaderShortcut("BalloonOffset", @"response header (SHIORI/2.0)")]
-    public partial class Headers : Dictionary<string, string> {
+    public partial class Headers : Dictionary<string, string>, IValidatable<Headers> {
         const string HeaderSeparator = ": ";
         static Regex ReferenceRe = new Regex(@"^Reference(\d+)$");
 
@@ -82,11 +82,12 @@ namespace ShioriSharp {
             get => InvalidPair is null;
         }
 
-        public void Validate() {
+        public Headers Validate() {
             var invalidPair = InvalidPair;
             if (invalidPair is not null) {
                 throw new InvalidOperationException($"header has \\n value [{((KeyValuePair<string, string>)invalidPair).Key}: {invalidPair.Value}]");
             }
+            return this;
         }
     }
 }

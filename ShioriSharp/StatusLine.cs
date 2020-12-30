@@ -2,7 +2,7 @@
 
 namespace ShioriSharp {
     /** <summary>SHIORI Response Message's StatusLine Container</summary> */
-    public class StatusLine {
+    public class StatusLine : IValidatable<StatusLine> {
         public StatusCode StatusCode { get; set; } = StatusCode.OK;
         public Protocol Protocol { get; set; } = Protocol.SHIORI;
         public Version Version { get; set; } = Version.V3_0;
