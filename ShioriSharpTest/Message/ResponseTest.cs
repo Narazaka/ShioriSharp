@@ -19,6 +19,14 @@ namespace ShioriSharpTest.Message {
         public void Constructor() {
             Assert.True(new Response(200).StatusCode == 200);
             Assert.True(new Response(400).StatusCode == 400);
+            var shiori = new Response(204, "SHIORI");
+            Assert.True(shiori.StatusCode == 204);
+            Assert.True(shiori.Protocol == "SHIORI");
+            Assert.True(shiori.Version == "3.0");
+            var saori = new Response(500, "SAORI");
+            Assert.True(saori.StatusCode == 500);
+            Assert.True(saori.Protocol == "SAORI");
+            Assert.True(saori.Version == "1.0");
         }
     }
 }

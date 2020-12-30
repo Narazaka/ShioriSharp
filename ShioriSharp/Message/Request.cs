@@ -4,6 +4,11 @@ namespace ShioriSharp.Message {
     public class Request : IValidatable<Request> {
         public Request() { }
         public Request(Method method) => Method = method;
+        public Request(Method method, Protocol protocol) : this(method) {
+            Protocol = protocol;
+            if (protocol.AsEnum == ProtocolEnum.SAORI)
+                Version = VersionEnum.V1_0;
+        }
 
         public RequestLine RequestLine { get; set; } = new();
         public Headers Headers { get; set; } = new();

@@ -4,6 +4,11 @@ namespace ShioriSharp.Message {
     public class Response : IValidatable<Response> {
         public Response() { }
         public Response(int statusCode) => StatusCode = statusCode;
+        public Response(int statusCode, Protocol protocol) : this(statusCode) {
+            Protocol = protocol;
+            if (protocol.AsEnum == ProtocolEnum.SAORI)
+                Version = VersionEnum.V1_0;
+        }
 
         public StatusLine StatusLine { get; set; } = new();
         public Headers Headers { get; set; } = new();
