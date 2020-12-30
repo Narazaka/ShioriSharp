@@ -5,14 +5,36 @@
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Authors>narazaka</Authors>
+    <PackageLicenseExpression>Zlib</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Narazaka/ShioriSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Narazaka/ShioriSharp.git</RepositoryUrl>
+    <PackageTags>ukagaka;伺か;SHIORI;parser</PackageTags>
+    <Description>SHIORI/2.x,3.x SAORI/1.0 Protocol Parser / Container</Description>
+    <PackageIcon>ShioriSharp.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EnumWithValues" Version="1.0.7" />
+    <PackageReference Include="EnumWithValues" Version="[1.0.8,2)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HeadersShortcutGenerator\HeadersShortcutGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\ShioriSharp.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
   </ItemGroup>
 
 </Project>
